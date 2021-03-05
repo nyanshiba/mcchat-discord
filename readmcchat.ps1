@@ -1,10 +1,20 @@
 #requires -version 7
 
+[CmdletBinding()]
+param (
+    [Parameter(Mandatory)]
+    [String]
+    $Name
+)
+
 # ユーザ設定
-$Settings =
+$Profiles =
 @{
-    latestLogPath = "~/Servers/CBWSurvival/logs/latest.log"
-    hookUrl = "https://discordapp.com/api/webhooks/XXXXXXXXXX"
+    "CBWSurvival" =
+    @{
+        latestLogPath = "~/Servers/CBWSurvival/logs/latest.log"
+        hookUrl = "https://discordapp.com/api/webhooks/XXXXXXXXXX"
+    }
 }
 
 <#
@@ -25,6 +35,6 @@ $Settings =
 ...
 #>
 # tmux new-session -ds readmcchat pwsh ~/Repos/mcchat-discord/readmcchat.ps1
-Get-Content -Wait -Tail 0 -Path $Settings.latestLogPath | Select-String -Pattern "Server thread/INFO\]: (<.*|.*(joined|left) the game)" | ForEach-Object {
-    Invoke-RestMethod -Uri $Settings.hookUrl -Method Post -Headers @{ "Content-Type" = "application/json" } -Body ([System.Text.Encoding]::UTF8.GetBytes(([PSCustomObject]@{ content = "$_" } | ConvertTo-Json -Depth 1)))
+Get-Content -Wait -Tail 0 -Path $Profiles.$Name.latestLogPath | Select-String -Pattern "Server thread/INFO\]: (<.*|.*(joined|left) the game)" | ForEach-Object {
+    Invoke-RestMethod -Uri $Profiles.$Name.hookUrl -Method Post -Headers @{ "Content-Type" = "application/json" } -Body ([System.Text.Encoding]::UTF8.GetBytes(([PSCustomObject]@{ content = "$(($_ -split ']: ')[1])"; username = "$Name" } | ConvertTo-Json -Depth 1)))
 }
