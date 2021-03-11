@@ -42,6 +42,23 @@ $Profiles =
             return (Invoke-WebRequest -Uri "https://ipinfo.io/$ipaddr/json" | ConvertFrom-Json).country
         })
     }
+    "SSHLoginAttack" =
+    @{
+        latestLogPath = "/var/log/auth.log"
+        hookUrl = "https://discordapp.com/api/webhooks/XXXXXXXXXX"
+        Pattern = "Bye"
+        Formatter =
+        ({
+            # sshdの失敗ログからIPv4/IPv6アドレスを取得
+            $ipaddr = [Regex]::Replace($_, "^.*from ((\w*:\w+)+|[\d.]+) .*$", { $args.Groups[1].Value })
+
+            # ipinfo.io
+            $response = Invoke-WebRequest -Uri "https://ipinfo.io/$ipaddr/json" | ConvertFrom-Json
+
+            # プライバシーに配慮して、国旗とAS番号のみをWebhook
+            return ":flag_$($response.country.ToLower()):" + ' ' + $response.org
+        })
+    }
 }
 
 # ファイル監視
