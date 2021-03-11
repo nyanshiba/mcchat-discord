@@ -36,7 +36,7 @@ $Profiles =
         Formatter =
         ({
             # プレイヤーのIPv4/IPv6アドレスを取得
-            $ipaddr = [Regex]::Replace($_, "^.*(\[/\[|\[/)((\w+:)+\w+|(\w+\.)+\w+).*$", { $args.Groups[2].Value })
+            $ipaddr = [Regex]::Replace($_, "^.*]: .*[[/]((\w*:\w+)+|[\d.]+).*$", { $args.Groups[1].Value })
 
             # ipinfo.ioで国を取得
             return (Invoke-WebRequest -Uri "https://ipinfo.io/$ipaddr/json" | ConvertFrom-Json).country
