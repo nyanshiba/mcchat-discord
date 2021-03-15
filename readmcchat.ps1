@@ -32,11 +32,11 @@ $Profiles =
     @{
         latestLogPath = "~/Servers/CBWLab/logs/latest.log"
         hookUrl = "https://discordapp.com/api/webhooks/XXXXXXXXXX"
-        Pattern = "logged in|left the|<|\[Server\]"
+        Pattern = "logged in|left the|<|\[Server\]|\[Rcon\]"
         Formatter =
         ({
-            # ↑の[Server]とIPv4/IPv6アドレス判別対応版
-            return [Regex]::Replace($_, "^.*]: (\w+ left the game|<\w+>.*|\[\Server\].*|\w+)((\[.+\])( logged in )[ \w]+ \(([-\d]+)\.\d+(, [-\d]+)\.\d+(, [-\d]+)\.\d+\))*$", {
+            # ↑の[Server][Rcon]とIPv4/IPv6アドレス判別対応版
+            return [Regex]::Replace($_, "^.*]: (\w+ left the game|<\w+>.*|\[\w+\].*|\w+)((\[.+\])( logged in )[ \w]+ \(([-\d]+)\.\d+(, [-\d]+)\.\d+(, [-\d]+)\.\d+\))*$", {
 
                 if ($args.Groups[3].Value -match '\.')
                 {
