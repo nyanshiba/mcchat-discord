@@ -28,11 +28,34 @@ $Profiles =
             return [Regex]::Replace($_, "^.*]: (.*)$", { $args.Groups[1].Value })
         })
     }
+    "CBWLab" =
+    @{
+        latestLogPath = "~/Servers/CBWLab/logs/latest.log"
+        hookUrl = "https://discordapp.com/api/webhooks/XXXXXXXXXX"
+        Pattern = "logged in|left the|<|\[Server\]"
+        Formatter =
+        ({
+            # ↑の[Server]とIPv4/IPv6アドレス判別対応版
+            return [Regex]::Replace($_, "^.*]: (\w+ left the game|<\w+>.*|\[\Server\].*|\w+)((\[.+\])( logged in )[ \w]+ \(([-\d]+)\.\d+(, [-\d]+)\.\d+(, [-\d]+)\.\d+\))*$", {
+
+                if ($args.Groups[3].Value -match '\.')
+                {
+                    $ipaddr = 'via IPv4 at '
+                }
+                elseif ($args.Groups[3].Value -match ':')
+                {
+                    $ipaddr = 'via IPv6 at '
+                }
+            
+                return $args.Groups[1].Value + $args.Groups[4].Value + $ipaddr + $args.Groups[5].Value + $args.Groups[6].Value + $args.Groups[7].Value
+            })
+        })
+    }
     "GetPlayerCountry" =
     @{
         latestLogPath = "~/Servers/CBWSurvival/logs/latest.log"
         hookUrl = "https://discordapp.com/api/webhooks/XXXXXXXXXX"
-        Pattern = "logged"
+        Pattern = "logged in"
         Formatter =
         ({
             # プレイヤーのIPv4/IPv6アドレスを取得
