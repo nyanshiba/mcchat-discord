@@ -20,7 +20,7 @@ $Profiles =
         hookUrl = "https://discordapp.com/api/webhooks/XXXXXXXXXX"
 
         # 一致する行の条件 (Minecraftサーバへの接続/切断, プレイヤーのチャットに一致)
-        Pattern = "Server thread/INFO\]: (<.*|.*(joined|left) the game)"
+        Pattern = "(joined|left) the|<\w+>"
 
         # 一致した行の整形
         Formatter =
@@ -32,9 +32,16 @@ $Profiles =
     @{
         latestLogPath = "~/Servers/CBWLab/logs/latest.log"
         hookUrl = "https://discordapp.com/api/webhooks/XXXXXXXXXX"
-        Pattern = "logged in|left the|<|\[Server\]|\[Rcon\]"
+        Pattern = "logged in|left the|<\w+>|\[Server\]|\[Rcon\]"
         Formatter =
         ({
+            # プレイヤーが!restartと発言したらMinecraftサーバを再起動する
+            # 実行可能なプレイヤーを制限したい場合は<\w+>を適切に書き換えるか、ops.json等を参照する
+            if ($_ -match '^.*]: <\w+> !restart$')
+            {
+                $null = ~/Servers/msl.ps1 -Name CBWLab -Action restart
+            }
+
             # ↑の[Server][Rcon]とIPv4/IPv6アドレス判別対応版
             return [Regex]::Replace($_, "^.*]: (\w+ left the game|<\w+>.*|\[\w+\].*|\w+)((\[.+\])( logged in )[ \w]+ \(([-\d]+)\.\d+(, [-\d]+)\.\d+(, [-\d]+)\.\d+\))*$", {
 
